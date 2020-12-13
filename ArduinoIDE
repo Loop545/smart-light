@@ -26,7 +26,7 @@ int r,g,b;
 
 BLYNK_WRITE(V3)  //reads the value from the V3 pin of the Blynk application if any changes are detected.
 {
-  r=param[0].asInt(); //reads values from array and assigns to variable.
+  r=param[0].asInt(); //reads values from array and assigns to variable if any changes occur on the Blynk app.
   g = param[1].asInt();
   b = param[2].asInt();
 
@@ -53,17 +53,16 @@ void setup()
 
 void loop()
 {
-  Blynk.run();
+  Blynk.run(); //Initiates Blynk application.
 }
 
 void static1(int r, int g, int b, int brightness)
 {
  FastLED.setBrightness(brightness);
- for (int i = 0; i < NUM_LEDS1; i++ )
+ for (int i = 0; i < NUM_LEDS1; i++ ) // as each led inside the led strip can be individually changed, applying for loop to get consistent color on all the leds.
  {
-  Blynk.syncAll();
-  leds1[i] = CRGB(r,g,b);
+  leds1[i] = CRGB(r,g,b); 
  }
   Blynk.syncAll();
-  FastLED.show();
+  FastLED.show(); // applies the color code to each light.
 }
