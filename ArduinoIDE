@@ -1,0 +1,69 @@
+#define BLYNK_PRINT Serial
+
+#include <SoftwareSerial.h>
+SoftwareSerial DebugSerial(0, 1); // RX, TX
+
+#define BLYNK_PRINT DebugSerial
+
+#include <BlynkSimpleStream.h> // including library.
+
+#include "FastLED.h" // including library.
+
+#define NUM_LEDS1 149 // defining number of bulbs in the led strip.
+
+#define LED_TYPE    WS2812B // type of led strip.
+
+#define COLOR_ORDER GRB
+
+CRGB leds1[NUM_LEDS1];
+
+char auth[] = "1dYf0tD0aMC2xsj4KLsgDoAyik5s5Y5L"; // authentication token of blynk app stored in auth array.
+
+#define PIN1 6 //defining the output pin of Arduino to which our LED will be connected.
+
+int data=0;
+int r,g,b;
+
+BLYNK_WRITE(V3)  //reads the value from the V3 pin of the Blynk application if any changes are detected.
+{
+  r=param[0].asInt(); //reads values from array and assigns to variable.
+  g = param[1].asInt();
+  b = param[2].asInt();
+
+  Blynk.syncAll(); //syncs all virtual pins value i.e V3 and V2 in our case.
+
+  static1(r,g,b,data);
+}
+
+BLYNK_WRITE(V2)
+{
+  data=param.asInt();
+
+  Blynk.syncAll();
+
+  static1(r,g,b,data);
+}
+
+void setup()
+{
+  Serial.begin(9600); //begins the serial communication.
+  Blynk.begin(Serial,auth);
+  FastLED.addLeds<LED_TYPE, PIN1, COLOR_ORDER>(leds1, NUM_LEDS1).setCorrection( TypicalLEDStrip );
+}
+
+void loop()
+{
+  Blynk.run();
+}
+
+void static1(int r, int g, int b, int brightness)
+{
+ FastLED.setBrightness(brightness);
+ for (int i = 0; i < NUM_LEDS1; i++ )
+ {
+  Blynk.syncAll();
+  leds1[i] = CRGB(r,g,b);
+ }
+  Blynk.syncAll();
+  FastLED.show();
+}
